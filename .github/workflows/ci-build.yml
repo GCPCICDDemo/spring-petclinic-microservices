@@ -73,6 +73,7 @@ jobs:
 
     - name: Push Docker images
       run: |-
+        docker login asia-northeast1-docker.pkg.dev
         docker tag springcommunity/spring-petclinic-api-gateway $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway
         docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway
         docker tag springcommunity/spring-petclinic-config-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-config-server

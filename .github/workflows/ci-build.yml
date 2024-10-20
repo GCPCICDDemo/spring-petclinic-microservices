@@ -63,7 +63,7 @@ jobs:
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: "http://sonar.cicd.tagarsoft.com/"
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           docker run \
             --rm \
@@ -75,7 +75,10 @@ jobs:
             -Dsonar.organization=GCPCICDDemo \
             -Dsonar.sources=. \
             -Dsonar.java.binaries=target/classes \
-            -Dsonar.login="${SONAR_TOKEN}"
+            -Dsonar.login="${SONAR_TOKEN}" \
+            -Dsonar.scm.disabled=true \
+            -Dsonar.scanner.metadataFilePath=/dev/null
+            -X
 
       - name: Check SonarQube Quality Gate
         env:

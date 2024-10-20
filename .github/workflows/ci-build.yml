@@ -21,7 +21,7 @@ env:
   ARTIFACT_REGISTRY: maven
 
 jobs:
-  check-build:
+  INIT:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,7 +37,7 @@ jobs:
 
   feature-branch-pipeline:
     if: startsWith(github.ref, 'refs/heads/feature-')
-    needs: check-build
+    needs: INIT
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,17 +63,25 @@ jobs:
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: "http://sonar.cicd.tagarsoft.com/"
         run: |
-          mvn sonar:sonar \
+          docker run \
+            --rm \
+            -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
+            -e SONAR_LOGIN="${SONAR_TOKEN}" \
+            -v "${PWD}:/usr/src" \
+            sonarsource/sonar-scanner-cli \
             -Dsonar.projectKey=PetApp \
             -Dsonar.organization=GCPCICDDemo \
-            -Dsonar.host.url=http://sonar.cicd.tagarsoft.com/
+            -Dsonar.sources=. \
+            -Dsonar.java.binaries=target/classes
 
       - name: Check SonarQube Quality Gate
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: "http://sonar.cicd.tagarsoft.com/"
         run: |
-          quality_gate_status=$(curl -s -u ${SONAR_TOKEN}: "http://35.187.197.7/api/qualitygates/project_status?projectKey=PetApp" | jq -r '.projectStatus.status')
+          quality_gate_status=$(curl -s -u ${SONAR_TOKEN}: "${SONAR_HOST_URL}/api/qualitygates/project_status?projectKey=PetApp" | jq -r '.projectStatus.status')
           if [ "$quality_gate_status" != "OK" ]; then
             echo "SonarQube Quality Gate failed. Aborting pipeline."
             exit 1

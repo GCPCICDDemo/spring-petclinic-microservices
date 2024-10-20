@@ -72,10 +72,17 @@ jobs:
 
     - name: Push Docker images
       run: |
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-config-server
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-discovery-server
+        docker tag docker.io/springcommunity/spring-petclinic-api-gateway $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-api-gateway
         docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-api-gateway
+        docker tag docker.io/springcommunity/spring-petclinic-config-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-config-server
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-config-server
+        docker tag docker.io/springcommunity/spring-petclinic-discovery-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-discovery-server
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-discovery-server
+        docker tag docker.io/springcommunity/spring-petclinic-customers-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-customers-service
         docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-customers-service
+        docker tag docker.io/springcommunity/spring-petclinic-visits-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-visits-service
         docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-visits-service
+        docker tag docker.io/springcommunity/spring-petclinic-vets-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-vets-service
         docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-vets-service
+        docker tag docker.io/springcommunity/spring-petclinic-admin-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-admin-server
         docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-admin-server

@@ -19,7 +19,7 @@ env:
   GCP_REGION: asia-northeast1
   GCP_PROJECT_ID: demoforgaudiy
   ARTIFACT_REGISTRY: maven
-  DOCKER_REGISTRY: docker-local
+  DOCKER_REGISTRY: docker
 
 jobs:
   build:

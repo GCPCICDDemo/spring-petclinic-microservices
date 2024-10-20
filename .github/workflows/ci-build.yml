@@ -83,7 +83,12 @@ jobs:
             -Dsonar.login="${SONAR_TOKEN}" \
             -Dsonar.scm.disabled=true \
             -Dsonar.scanner.metadataFilePath=/dev/null \
+            -Dsonar.scanner.cache.enabled=false \
             -X
+
+      - name: Check SonarQube Version
+        run: |
+          curl -u ${{ secrets.SONAR_TOKEN }}: ${SONAR_HOST_URL}/api/server/version
 
       - name: Check SonarQube Quality Gate
         env:
@@ -152,3 +157,4 @@ jobs:
           git push origin HEAD:${{ github.ref }}
 
   # Add other branch pipelines (release, main, hotfix) as needed
+

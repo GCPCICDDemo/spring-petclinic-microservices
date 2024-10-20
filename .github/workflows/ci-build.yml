@@ -51,7 +51,7 @@ jobs:
         -Dsonar.projectKey=GCPCICDDemo_spring-petclinic-microservices\
         -Dsonar.organization=gcpcicddemo \
         -Dsonar.host.url=https://sonarcloud.io \ 
-        -e
+        -X
         
 
     - name: Authenticate to Google Cloud

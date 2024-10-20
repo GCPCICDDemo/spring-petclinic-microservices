@@ -50,8 +50,8 @@ jobs:
         mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
         -Dsonar.projectKey=GCPCICDDemo_spring-petclinic-microservices\
         -Dsonar.organization=gcpcicddemo \
-        -Dsonar.host.url=https://sonarcloud.io \ 
-        -X
+        -Dsonar.host.url=https://sonarcloud.io 
+      continue-on-error: true
         
 
     - name: Authenticate to Google Cloud

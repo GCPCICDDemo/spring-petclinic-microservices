@@ -48,7 +48,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-        -Dsonar.projectKey=spring-petclinic-microservices \
+        -Dsonar.projectKey=GCPCICDDemo_spring-petclinic-microservices\
         -Dsonar.organization=gcpcicddemo \
         -Dsonar.host.url=https://sonarcloud.io \
         -X

@@ -65,6 +65,46 @@ public class Pet {
     @JsonIgnore
     private Owner owner;
 
+    public void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public PetType getType() {
+        return type;
+    }
+
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void setType(PetType type) {
+        this.type = type;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return new ToStringCreator(this)

@@ -175,4 +175,25 @@
         </profile>
     </profiles>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>maven</id>
+            <url>https://asia-northeast1-maven.pkg.dev/demoforgaudiy/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven</id>
+            <url>https://asia-northeast1-maven.pkg.dev/demoforgaudiy/maven</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>

@@ -32,4 +32,30 @@ public class VisitDetails {
     private String date = null;
 
     private String description = null;
+
+    // Add this method
+    public int getPetId() {
+        return petId; // Assuming you have a 'petId' field
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setPetId(int petId) {
+        this.petId = petId;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }   
+    public void setDate(String date) {
+        this.date = date;
+    }   
+    public void setId(int id) {
+        this.id = id;
+    }   
+    public int getId() {
+        return id;
+    }
+   public String getDate() {
+        return date;
+    }
 }

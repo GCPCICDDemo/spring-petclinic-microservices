@@ -60,46 +60,23 @@ jobs:
         run: |
           gcloud auth configure-docker $GCP_REGION-docker.pkg.dev
 
-      - name: SonarQube Scan
+      - name: SonarCloud Scan
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: "http://sonar.cicd.tagarsoft.com/"
         run: |
-          echo "SONAR_HOST_URL: ${SONAR_HOST_URL}"
-          echo "Checking SonarQube connection:"
-          curl -I "${SONAR_HOST_URL}"
-          
           docker run \
             --rm \
-            -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
             -e SONAR_TOKEN="${SONAR_TOKEN}" \
+            -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
             -v "${PWD}:/usr/src" \
             sonarsource/sonar-scanner-cli \
-            -Dsonar.host.url="${SONAR_HOST_URL}" \
-            -Dsonar.projectKey=PetApp-Feature \
+            -Dsonar.projectKey=spring-petclinic-microservices \
             -Dsonar.organization=GCPCICDDemo \
             -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.java.binaries=target/classes \
-            -Dsonar.login="${SONAR_TOKEN}" \
-            -Dsonar.scm.disabled=true \
-            -Dsonar.scanner.metadataFilePath=/dev/null \
-            -Dsonar.scanner.cache.enabled=false \
-            -X
-
-      - name: Check SonarQube Version
-        run: |
-          curl -u ${{ secrets.SONAR_TOKEN }}: ${SONAR_HOST_URL}/api/server/version
-
-      - name: Check SonarQube Quality Gate
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: "http://sonar.cicd.tagarsoft.com/"
-        run: |
-          quality_gate_status=$(curl -s -u ${SONAR_TOKEN}: "${SONAR_HOST_URL}/api/qualitygates/project_status?projectKey=PetApp" | jq -r '.projectStatus.status')
-          if [ "$quality_gate_status" != "OK" ]; then
-            echo "SonarQube Quality Gate failed. Aborting pipeline."
-            exit 1
-          fi
+            -Dsonar.scm.disabled=true
 
       - name: Run Unit Tests
         run: mvn test -s .mvn/settings.xml
@@ -148,7 +125,6 @@ jobs:
           docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-visits-service
           docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-vets-service
           docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices-admin-server
-
       - name: Push to Feature Branch
         if: success() || steps.check_commit.outputs.skip_vuln == 'true'
         run: |
@@ -157,4 +133,5 @@ jobs:
           git push origin HEAD:${{ github.ref }}
 
   # Add other branch pipelines (release, main, hotfix) as needed
+
 

@@ -53,7 +53,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=your-project-key -Dsonar.organization=your-correct-organization-key
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=spring-petclinic-microservices -Dsonar.organization=gcpcicddemo -Dsonar.host.url=https://sonarcloud.io
 
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v1

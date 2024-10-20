@@ -67,7 +67,7 @@ jobs:
           mvn sonar:sonar \
             -Dsonar.projectKey=PetApp \
             -Dsonar.organization=GCPCICDDemo \
-            -Dsonar.host.url=http://35.187.197.7/
+            -Dsonar.host.url=http://sonar.cicd.tagarsoft.com/
 
       - name: Check SonarQube Quality Gate
         env:

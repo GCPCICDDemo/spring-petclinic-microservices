@@ -37,7 +37,7 @@ jobs:
 
   feature-branch-pipeline:
     if: startsWith(github.ref, 'refs/heads/feature-')
-    needs: build
+    needs: check-build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

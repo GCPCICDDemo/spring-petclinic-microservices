@@ -68,19 +68,7 @@ jobs:
 
     - name: Build Docker Images
       run: |
-        ./mvnw spring-boot:build-image -s .mvn/settings.xml \
-        -Dspring-boot.build-image.imageName=$GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REGISTRY/spring-petclinic-microservices \
-        -Dspring-boot.build-image.pullPolicy=IF_NOT_PRESENT
-
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: '${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/spring-petclinic-microservices'
-        format: 'table'
-        exit-code: '1'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'
+        ./mvnw clean install -P buildDocker
 
     - name: Push Docker images
       run: |

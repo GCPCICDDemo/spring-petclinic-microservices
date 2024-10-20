@@ -58,22 +58,21 @@ jobs:
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v1
       with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
+        credentials_json: "${{ secrets.GCP_SA_KEY }}"
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
 
     - name: Configure Docker for Artifact Registry
-      run: |
+      run: |-
         gcloud auth configure-docker $GCP_REGION-docker.pkg.dev
 
     - name: Build Docker Images
-      run: |
+      run: |-
         ./mvnw clean install -P buildDocker
 
     - name: Push Docker images
-      run: |
-        docker login -u _json_key --password-stdin https://${GCP_REGION}-docker.pkg.dev <<< ${{ secrets.GCP_SA_KEY }}
+      run: |-
         docker tag springcommunity/spring-petclinic-api-gateway $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway
         docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway
         docker tag springcommunity/spring-petclinic-config-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-config-server

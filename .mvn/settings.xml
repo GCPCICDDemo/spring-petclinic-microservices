@@ -4,23 +4,12 @@
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>google-cloud-artifact-registry</id>
+      <id>maven</id>
       <configuration>
         <httpConfiguration>
           <get>
             <usePreemptive>true</usePreemptive>
           </get>
-          <head>
-            <usePreemptive>true</usePreemptive>
-          </head>
-          <put>
-            <params>
-              <property>
-                <name>http.protocol.expect-continue</name>
-                <value>false</value>
-              </property>
-            </params>
-          </put>
         </httpConfiguration>
       </configuration>
     </server>

@@ -71,7 +71,7 @@ jobs:
             -e SONAR_TOKEN="${SONAR_TOKEN}" \
             -v "${PWD}:/usr/src" \
             sonarsource/sonar-scanner-cli \
-            -Dsonar.projectKey=PetApp \
+            -Dsonar.projectKey=PetApp-Feature \
             -Dsonar.organization=GCPCICDDemo \
             -Dsonar.sources=. \
             -Dsonar.java.binaries=target/classes \

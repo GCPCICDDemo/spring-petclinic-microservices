@@ -1,0 +1,42 @@
+# customers-service-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customers-service
+  namespace: ${NAMESPACE}
+spec:
+  replicas: ${REPLICAS}
+  selector:
+    matchLabels:
+      app: customers-service
+  template:
+    metadata:
+      labels:
+        app: customers-service
+    spec:
+      containers:
+      - name: customers-service
+        image: asia-northeast1-docker.pkg.dev/demoforgaudiy/docker-local/spring-petclinic-customers-service:${CUSTOMERS_SERVICE_VERSION}
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: ${CPU_LIMIT}
+            memory: ${MEMORY_LIMIT}
+          requests:
+            cpu: ${CPU_REQUEST}
+            memory: ${MEMORY_REQUEST}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customers-service
+  namespace: ${NAMESPACE}
+spec:
+  selector:
+    app: customers-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+

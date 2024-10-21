@@ -1,0 +1,42 @@
+# admin-server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-server
+  namespace: ${NAMESPACE}
+spec:
+  replicas: ${REPLICAS}
+  selector:
+    matchLabels:
+      app: admin-server
+  template:
+    metadata:
+      labels:
+        app: admin-server
+    spec:
+      containers:
+      - name: admin-server
+        image: asia-northeast1-docker.pkg.dev/demoforgaudiy/docker-local/spring-petclinic-admin-server:${ADMIN_SERVER_VERSION}
+        ports:
+        - containerPort: 9090
+        resources:
+          limits:
+            cpu: ${CPU_LIMIT}
+            memory: ${MEMORY_LIMIT}
+          requests:
+            cpu: ${CPU_REQUEST}
+            memory: ${MEMORY_REQUEST}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-server
+  namespace: ${NAMESPACE}
+spec:
+  selector:
+    app: admin-server
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+

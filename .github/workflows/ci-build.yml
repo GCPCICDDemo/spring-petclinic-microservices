@@ -6,15 +6,13 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - 'main'
       - 'feature-*'
-      - 'release-*'
-      - 'hotfix-*'
   pull_request:
     branches:
       - 'main'
       - 'release-*'
       - 'hotfix-*'
+      - 'feature-*'
 
 env:
   GCP_REGION: asia-northeast1

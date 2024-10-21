@@ -1,0 +1,42 @@
+# discovery-server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-server
+  namespace: ${NAMESPACE}
+spec:
+  replicas: ${REPLICAS}
+  selector:
+    matchLabels:
+      app: discovery-server
+  template:
+    metadata:
+      labels:
+        app: discovery-server
+    spec:
+      containers:
+      - name: discovery-server
+        image: asia-northeast1-docker.pkg.dev/demoforgaudiy/docker-local/spring-petclinic-discovery-server:${DISCOVERY_SERVER_VERSION}
+        ports:
+        - containerPort: 8761
+        resources:
+          limits:
+            cpu: ${CPU_LIMIT}
+            memory: ${MEMORY_LIMIT}
+          requests:
+            cpu: ${CPU_REQUEST}
+            memory: ${MEMORY_REQUEST}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery-server
+  namespace: ${NAMESPACE}
+spec:
+  selector:
+    app: discovery-server
+  ports:
+    - protocol: TCP
+      port: 8761
+      targetPort: 8761
+

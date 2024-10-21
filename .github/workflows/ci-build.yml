@@ -69,7 +69,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+        fetch-depth: 0
 
     - name: Set up JDK 17
       uses: actions/setup-java@v2
@@ -116,25 +116,18 @@ jobs:
     - name: Push Docker images
       run: |-
         docker login asia-northeast1-docker.pkg.dev
-        docker tag springcommunity/spring-petclinic-api-gateway $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway
-        docker tag springcommunity/spring-petclinic-config-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-config-server
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-config-server
-        docker tag springcommunity/spring-petclinic-discovery-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-discovery-server
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-discovery-server
-        docker tag springcommunity/spring-petclinic-customers-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-customers-service
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-customers-service
-        docker tag springcommunity/spring-petclinic-visits-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-visits-service
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-visits-service
-        docker tag springcommunity/spring-petclinic-vets-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-vets-service
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-vets-service
-        docker tag springcommunity/spring-petclinic-admin-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-admin-server
-        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-admin-server
+        docker tag springcommunity/spring-petclinic-api-gateway $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway:${{ env.VERSION }}
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-api-gateway:${{ env.VERSION }} 
+        docker tag springcommunity/spring-petclinic-config-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-config-server:${{ env.VERSION }}
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-config-server:${{ env.VERSION }}
+        docker tag springcommunity/spring-petclinic-discovery-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-discovery-server:${{ env.VERSION }}
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-discovery-server:${{ env.VERSION }}
+        docker tag springcommunity/spring-petclinic-customers-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-customers-service:${{ env.VERSION }}
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-customers-service:${{ env.VERSION }}
+        docker tag springcommunity/spring-petclinic-visits-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-visits-service:${{ env.VERSION }}
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-visits-service:${{ env.VERSION }}
+        docker tag springcommunity/spring-petclinic-vets-service $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-vets-service:${{ env.VERSION }}
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-vets-service:${{ env.VERSION }}
+        docker tag springcommunity/spring-petclinic-admin-server $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-admin-server:${{ env.VERSION }}
+        docker push $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$DOCKER_REGISTRY/spring-petclinic-microservices-admin-server:${{ env.VERSION }}
 
-  # Placeholder for future release branch extensions
-  release-extension:
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/release-')
-    needs: build-and-deploy
-    steps:
-    - run: echo "This job will be extended later for release branch specific tasks"

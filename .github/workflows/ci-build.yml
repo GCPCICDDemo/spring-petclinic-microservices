@@ -79,7 +79,7 @@ jobs:
                      springcommunity/spring-petclinic-admin-server; do
           trivy image --exit-code 0 --ignore-unfixed --vuln-type os,library --severity CRITICAL,HIGH $image
         done
-      - name: Check build status
+    - name: Check build status
       if: failure()
       run: exit 1
     

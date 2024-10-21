@@ -117,7 +117,7 @@ jobs:
       run: |-
         ./mvnw clean install -P buildDocker
 
-     - name: Extract version from branch name
+    - name: Extract version from branch name
       run: |
         if [[ $GITHUB_EVENT_NAME == 'pull_request' ]]; then
           BRANCH_NAME=$GITHUB_BASE_REF
@@ -126,7 +126,7 @@ jobs:
         fi
         VERSION=${BRANCH_NAME#*-}
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        
+
     - name: Push Docker images
       run: |-
         docker login asia-northeast1-docker.pkg.dev

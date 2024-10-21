@@ -26,99 +26,91 @@ stages:
 
 - stage: DeployStaging
   jobs:
-  - deployment: DeployToStaging
+  - job: Deploy
     pool:
       vmImage: 'ubuntu-latest'
-    environment: 'Staging'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              namespace: '$(NAMESPACE)'
-              command: 'create'
-              arguments: 'secret docker-registry gcr-json-key --docker-server=${ARTIFACT_REGISTRY_HOST} --docker-username=_json_key --docker-password="$(GCP_KEY)" --docker-email=NOT_NEEDED'
-          
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifactName: 'manifests'
-              downloadPath: '$(Pipeline.Workspace)/manifests'
-          
-          - script: |
-              sed -i 's/${NAMESPACE}/$(NAMESPACE)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${CPU_LIMIT}/$(CPU_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${MEMORY_LIMIT}/$(MEMORY_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${CPU_REQUEST}/$(CPU_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${MEMORY_REQUEST}/$(MEMORY_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${REPLICAS}/$(REPLICAS)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${API_GATEWAY_HOST}/$(API_GATEWAY_HOST)/g' $(Pipeline.Workspace)/manifests/*.yml
-            displayName: 'Replace placeholders in Kubernetes manifests'
+    steps:
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        namespace: '$(NAMESPACE)'
+        command: 'create'
+        arguments: 'secret docker-registry gcr-json-key --docker-server=${ARTIFACT_REGISTRY_HOST} --docker-username=_json_key --docker-password="$(GCP_KEY)" --docker-email=NOT_NEEDED'
+    
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifactName: 'manifests'
+        downloadPath: '$(Pipeline.Workspace)/manifests'
+    
+    - script: |
+        sed -i 's/${NAMESPACE}/$(NAMESPACE)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${CPU_LIMIT}/$(CPU_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${MEMORY_LIMIT}/$(MEMORY_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${CPU_REQUEST}/$(CPU_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${MEMORY_REQUEST}/$(MEMORY_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${REPLICAS}/$(REPLICAS)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${API_GATEWAY_HOST}/$(API_GATEWAY_HOST)/g' $(Pipeline.Workspace)/manifests/*.yml
+      displayName: 'Replace placeholders in Kubernetes manifests'
 
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              namespace: '$(NAMESPACE)'
-              manifests: |
-                $(Pipeline.Workspace)/manifests/*
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/spring-petclinic-api-gateway:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-customers-service:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-vets-service:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-visits-service:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-config-server:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-discovery-server:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-admin-server:$(Build.BuildId)
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        namespace: '$(NAMESPACE)'
+        manifests: |
+          $(Pipeline.Workspace)/manifests/*
+        imagePullSecrets: |
+          $(imagePullSecret)
+        containers: |
+          $(containerRegistry)/spring-petclinic-api-gateway:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-customers-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-vets-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-visits-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-config-server:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-discovery-server:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-admin-server:$(Build.BuildId)
 
 - stage: DeployHotfix
   condition: startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')
   jobs:
-  - deployment: DeployToHotfix
+  - job: Deploy
     pool:
       vmImage: 'ubuntu-latest'
-    environment: 'Staging'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              namespace: '$(NAMESPACE)'
-              command: 'create'
-              arguments: 'secret docker-registry gcr-json-key --docker-server=${ARTIFACT_REGISTRY_HOST} --docker-username=_json_key --docker-password="$(GCP_KEY)" --docker-email=NOT_NEEDED'
-          
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifactName: 'manifests'
-              downloadPath: '$(Pipeline.Workspace)/manifests'
-          
-          - script: |
-              sed -i 's/${NAMESPACE}/hotfix/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${CPU_LIMIT}/$(CPU_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${MEMORY_LIMIT}/$(MEMORY_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${CPU_REQUEST}/$(CPU_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${MEMORY_REQUEST}/$(MEMORY_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${REPLICAS}/$(REPLICAS)/g' $(Pipeline.Workspace)/manifests/*.yml
-              sed -i 's/${API_GATEWAY_HOST}/hotfix-petclinic.yourdomain.com/g' $(Pipeline.Workspace)/manifests/*.yml
-            displayName: 'Replace placeholders in Kubernetes manifests'
+    steps:
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        namespace: '$(NAMESPACE)'
+        command: 'create'
+        arguments: 'secret docker-registry gcr-json-key --docker-server=${ARTIFACT_REGISTRY_HOST} --docker-username=_json_key --docker-password="$(GCP_KEY)" --docker-email=NOT_NEEDED'
+    
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifactName: 'manifests'
+        downloadPath: '$(Pipeline.Workspace)/manifests'
+    
+    - script: |
+        sed -i 's/${NAMESPACE}/hotfix/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${CPU_LIMIT}/$(CPU_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${MEMORY_LIMIT}/$(MEMORY_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${CPU_REQUEST}/$(CPU_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${MEMORY_REQUEST}/$(MEMORY_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${REPLICAS}/$(REPLICAS)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${API_GATEWAY_HOST}/hotfix-petclinic.yourdomain.com/g' $(Pipeline.Workspace)/manifests/*.yml
+      displayName: 'Replace placeholders in Kubernetes manifests'
 
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              namespace: 'hotfix'
-              manifests: |
-                $(Pipeline.Workspace)/manifests/*
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/spring-petclinic-api-gateway:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-customers-service:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-vets-service:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-visits-service:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-config-server:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-discovery-server:$(Build.BuildId)
-                $(containerRegistry)/spring-petclinic-admin-server:$(Build.BuildId)
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        namespace: 'hotfix'
+        manifests: |
+          $(Pipeline.Workspace)/manifests/*
+        imagePullSecrets: |
+          $(imagePullSecret)
+        containers: |
+          $(containerRegistry)/spring-petclinic-api-gateway:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-customers-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-vets-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-visits-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-config-server:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-discovery-server:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-admin-server:$(Build.BuildId)

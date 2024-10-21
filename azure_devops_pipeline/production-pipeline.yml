@@ -4,7 +4,7 @@ trigger:
   - hotfix/* 
 
 variables:
-  - group: production-variables
+  - group: global
   - name: NAMESPACE
     value: production
   - name: CPU_LIMIT
@@ -22,27 +22,6 @@ variables:
   - name: ARTIFACT_REGISTRY_HOST
     value: asia-northeast1-docker.pkg.dev
 stages:
-- stage: Build
-  jobs:
-  - job: BuildJob
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'your-container-registry'
-        repository: 'spring-petclinic-api-gateway'
-        command: 'buildAndPush'
-        Dockerfile: '**/spring-petclinic-api-gateway/Dockerfile'
-        tags: '$(Build.BuildId)'
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'your-container-registry'
-        repository: 'spring-petclinic-customers-service'
-        command: 'buildAndPush'
-        Dockerfile: '**/spring-petclinic-customers-service/Dockerfile'
-        tags: '$(Build.BuildId)'
-    # Repeat for other services: vets, visits, config-server, discovery-server, admin-server
 
 - stage: DeployProduction
   jobs:

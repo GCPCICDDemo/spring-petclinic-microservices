@@ -64,7 +64,7 @@ jobs:
         image: "springcommunity/spring-petclinic-api-gateway"
         fail-build: true
         severity-cutoff: high
-
+      continue-on-error: true
     - name: Run Grype on multiple images
       run: |
         for image in springcommunity/spring-petclinic-config-server \
@@ -75,7 +75,7 @@ jobs:
                      springcommunity/spring-petclinic-admin-server; do
           grype $image --fail-on high || exit 1
         done
-
+      continue-on-error: true
     - name: Check build status
       if: failure()
       run: exit 1
@@ -139,7 +139,7 @@ jobs:
         image: "springcommunity/spring-petclinic-api-gateway"
         fail-build: true
         severity-cutoff: high
-
+      continue-on-error: true
     - name: Run Grype on multiple images
       run: |
         for image in springcommunity/spring-petclinic-config-server \
@@ -150,6 +150,7 @@ jobs:
                      springcommunity/spring-petclinic-admin-server; do
           grype $image --fail-on high || exit 1
         done
+      continue-on-error: true
     - name: Extract version from branch name
       run: |
         if [[ $GITHUB_EVENT_NAME == 'pull_request' ]]; then

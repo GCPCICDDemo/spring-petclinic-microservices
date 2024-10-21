@@ -25,9 +25,13 @@ import org.springframework.samples.petclinic.customers.web.mapper.OwnerEntityMap
 import org.springframework.samples.petclinic.customers.model.Owner;
 import org.springframework.samples.petclinic.customers.model.OwnerRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -43,8 +47,13 @@ import java.util.Optional;
 @Slf4j
 class OwnerResource {
 
-    private final OwnerRepository ownerRepository;
-    private final OwnerEntityMapper ownerEntityMapper;
+    @Autowired
+    private OwnerRepository ownerRepository;
+
+    @Autowired
+    private OwnerEntityMapper ownerEntityMapper;
+
+    private static final Logger log = LoggerFactory.getLogger(OwnerResource.class);
 
     /**
      * Create Owner

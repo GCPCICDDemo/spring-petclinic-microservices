@@ -6,17 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.samples.petclinic.visits.model.VisitRepository;
+import org.springframework.samples.petclinic.visits.model.Visit;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
-
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import static java.util.Arrays.asList;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.samples.petclinic.visits.model.Visit.visit;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(VisitResource.class)
@@ -29,20 +33,30 @@ class VisitResourceTest {
     @MockBean
     VisitRepository visitRepository;
 
+    private Visit visit() {
+        return Visit.builder()
+            .id(1)
+            .petId(1)
+            .date(java.sql.Date.valueOf(LocalDate.of(2018, 8, 10)))
+            .description("test visit")
+            .build();
+    }
+
     @Test
     void shouldFetchVisits() throws Exception {
-        given(visitRepository.findByPetIdIn(asList(111, 222)))
+        List<Integer> petIds = asList(111, 222);
+        given(visitRepository.findByPetIdIn(eq(petIds)))
             .willReturn(
-                asList(
-                    visit()
+                List.of(
+                    Visit.builder()
                         .id(1)
                         .petId(111)
                         .build(),
-                    visit()
+                    Visit.builder()
                         .id(2)
                         .petId(222)
                         .build(),
-                    visit()
+                    Visit.builder()
                         .id(3)
                         .petId(222)
                         .build()

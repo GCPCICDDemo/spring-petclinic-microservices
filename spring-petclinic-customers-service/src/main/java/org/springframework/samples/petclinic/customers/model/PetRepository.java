@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repository class for <code>Pet</code> domain objects All method names are compliant with Spring Data naming
@@ -32,6 +33,7 @@ import org.springframework.data.repository.query.Param;
  * @author Michael Isvy
  * @author Maciej Szarlinski
  */
+@Repository
 public interface PetRepository extends JpaRepository<Pet, Integer> {
 
     /**
@@ -46,4 +48,3 @@ public interface PetRepository extends JpaRepository<Pet, Integer> {
 
 
 }
-

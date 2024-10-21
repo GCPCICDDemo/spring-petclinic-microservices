@@ -32,16 +32,30 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "types")
+@Getter
+@Setter
 public class PetType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
-    @Setter
     private Integer id;
-
-    @Getter
-    @Setter
+  
     @Column(name = "name")
     private String name;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 }

@@ -32,8 +32,38 @@ public class PetDetails {
 
     private String birthDate;
 
-    private PetType type;
+    private String type;
 
-    private final List<VisitDetails> visits = new ArrayList<>();
+    private List<VisitDetails> visits;
 
+    public int getId() {
+        return id;
+    }
+
+    public List<VisitDetails> getVisits() {
+        return visits;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    public String getBirthDate() {
+        return birthDate;
+    }
+    public String getType() {
+        return type;
+    }
 }
+

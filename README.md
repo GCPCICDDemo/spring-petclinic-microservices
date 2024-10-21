@@ -1,77 +1,129 @@
-# Distributed version of the Spring PetClinic Sample Application built with Spring Cloud 
+# Spring PetClinic Microservices with GCP CICD
 
-[![Build Status](https://github.com/spring-petclinic/spring-petclinic-microservices/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-petclinic/spring-petclinic-microservices/actions/workflows/maven-build.yml)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+This project demonstrates a GCP-based CI/CD pipeline for a microservices architecture using the Spring PetClinic application. It showcases best practices for branching strategies and continuous integration/deployment workflows.
 
-This microservices branch was initially derived from [AngularJS version](https://github.com/spring-petclinic/spring-petclinic-angular1) to demonstrate how to split sample Spring application into [microservices](http://www.martinfowler.com/articles/microservices.html).
-To achieve that goal, we use Spring Cloud Gateway, Spring Cloud Circuit Breaker, Spring Cloud Config, Micrometer Tracing, Resilience4j, Open Telemetry 
-and the Eureka Service Discovery from the [Spring Cloud Netflix](https://github.com/spring-cloud/spring-cloud-netflix) technology stack.
+## Branching Strategy
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/spring-petclinic/spring-petclinic-microservices)
+We follow branching strategy with the following branches:
 
-## Starting services locally without docker
+### Main Branch (`main`)
+- The main branch represents the latest production-ready state of the project.
+- It is always stable and deployable.
+- Direct commits to `main` are not allowed; changes are merged through pull requests.
+- Branch protection rules and build checks are added to make sure the buildable deployable code is always present in the main branch.
 
-Every microservice is a Spring Boot application and can be started locally using IDE ([Lombok](https://projectlombok.org/) plugin has to be set up) or `../mvnw spring-boot:run` command. Please note that supporting services (Config and Discovery Server) must be started before any other application (Customers, Vets, Visits and API).
-Startup of Tracing server, Admin server, Grafana and Prometheus is optional.
-If everything goes well, you can access the following services at given location:
-* Discovery Server - http://localhost:8761
-* Config Server - http://localhost:8888
-* AngularJS frontend (API Gateway) - http://localhost:8080
-* Customers, Vets and Visits Services - random port, check Eureka Dashboard 
-* Tracing Server (Zipkin) - http://localhost:9411/zipkin/ (we use [openzipkin](https://github.com/openzipkin/zipkin/tree/main/zipkin-server))
-* Admin Server (Spring Boot Admin) - http://localhost:9090
-* Grafana Dashboards - http://localhost:3000
-* Prometheus - http://localhost:9091
+### Release Branches (`release-*`)
+- Created from `main` when preparing a new production release.
+- Direct commits to `release-*` are not allowed; changes are merged through pull requests.
+- Used for last-minute bug fixes and preparation for release.
+- Merged back into `main` and tagged with a version number when ready for production.
+- Naming convention: `release-X.Y.Z` (e.g., `release-1.2.0`)
+- Branch protection rules and build checks are added to make sure the buildable deployable code is always present in the main branch.
+- Release branch is deployed on staging env. and verification is performed before it is deployed into production.
 
-You can tell Config Server to use your local Git repository by using `native` Spring profile and setting
-`GIT_REPO` environment variable, for example:
-`-Dspring.profiles.active=native -DGIT_REPO=/projects/spring-petclinic-microservices-config`
+### Feature Branches (`feature-*`)
+- Created for developing new features or enhancements.
+- Branched off from `main` and merged back via pull request when complete.
+- Naming convention: `feature-short-description` (e.g., `feature-add-payment-gateway`)
+- Build checks enabled to make sure buildable code is present.
+- Feature branches are merged to particular release in which we intend to deliver the feature
+  
 
-## Starting services locally with docker-compose
-In order to start entire infrastructure using Docker, you have to build images by executing
-``bash
-./mvnw clean install -P buildDocker
-``
-This requires `Docker` or `Docker desktop` to be installed and running.
+### Hotfix Branches (`hotfix-*`)
+- Used to quickly patch production releases.
+- Branched off from the corresponding release tag on `main`.
+- Merged back into both `main` and the current `release-*` branch.
+- Naming convention: `hotfix-X.Y.Z+1` (e.g., `hotfix-1.2.1`)
 
-Alternatively you can also build all the images on `Podman`, which requires Podman or Podman Desktop to be installed and running.
-```bash
-./mvnw clean install -PbuildDocker -Dcontainer.executable=podman
-```
-By default, the Docker OCI image is build for an `linux/amd64` platform.
-For other architectures, you could change it by using the `-Dcontainer.platform` maven command line argument.
-For instance, if you target container images for an Apple M2, you could use the command line with the `linux/arm64` architecture:
-```bash
-./mvnw clean install -P buildDocker -Dcontainer.platform="linux/arm64"
-```
+## Feature Development Workflow
 
-Once images are ready, you can start them with a single command
-`docker-compose up` or `podman-compose up`. 
+1. Create a new `feature-*` branch from `main`.
+2. Develop and commit changes to the feature branch.
+3. Open a pull request to merge the feature branch into `release-x.y.z`.
+4. After code review and approval, merge the pull request.
+5. The feature is now in `release-x.y.z` and will be included in the next release.
+6. Once verification on staging is performed (Auotmated Tests + Manual Tests + Security Tests) and the quality is as required the rel;ease branch will be deployed on production.
+7. If production deployment is good and no roleback needed (until a grace period ) then release-x.y.z branch is merged to main.
+8. if production release has any issues role back is perfoemd using main branch (last release docker tags) and release branch verificaiton and issue triage follows.
+9. In case of grace period for production deployment is over and new issues identifed Hot fized will be provided from hotfix branch
+ 
 
-Containers startup order is coordinated with the `service_healthy` condition of the Docker Compose [depends-on](https://github.com/compose-spec/compose-spec/blob/main/spec.md#depends_on) expression 
-and the [healthcheck](https://github.com/compose-spec/compose-spec/blob/main/spec.md#healthcheck) of the service containers. 
-After starting services, it takes a while for API Gateway to be in sync with service registry,
-so don't be scared of initial Spring Cloud Gateway timeouts. You can track services availability using Eureka dashboard
-available by default at http://localhost:8761.
+## CI/CD Pipeline
 
-The `main` branch uses an Eclipse Temurin with Java 17 as Docker base image.
+Our CI/CD pipeline is implemented using GitHub Actions and is defined in the `.github/workflows/ci-build.yml` file. The pipeline behaves differently based on the branch:
 
-*NOTE: Under MacOSX or Windows, make sure that the Docker VM has enough memory to run the microservices. The default settings
-are usually not enough and make the `docker-compose up` painfully slow.*
+### Feature Branches (`feature-*`)
+- Triggered on push to `feature-*` branches.
+- Builds the project and runs unit tests.
+- Performs static code analysis with SonarQube.(Currently set to ignore failures just for demo)
+- Builds Docker images but does not push them.
+- Runs vulnerability scans on the Docker images.(Currently set to ignore failures just for demo)
+refer pipeline code: .github/workflows/ci-build.yaml
+
+### Main Branch (`main`)
+- Triggered on pull request to `main`.
+- Performs the same steps as feature branches.
+- Additionally, runs integration tests.
+refer pipeline code: .github/workflows/ci-build.yaml
+
+### Release and Hotfix Branches (`release-*`, `hotfix-*`)
+- Triggered on push to `release-*` or `hotfix-*` branches.
+- Performs all previous steps.
+- Builds and pushes Docker images to Google Artifact Registry.
+- Deploys to the staging environment for final testing.
+For CI refer pipeline code: .github/workflows/ci-build.yaml
+For CD refer /azure_devops_pipeline/
+
+### Production Deployment
+- Triggered manually after approval of a release.
+- Deploys the approved release to the production environment.
+
+### Artifacts  Management
+There are 3 different repository created for each artifacts type (like maven, docker etc)
+1. **Local Repository**: This repository is used to store the built artifacts such as java snapshot files, different libs created by the code base, docker images etc. This local repository is used as backing repository for a virtual repository.
+2. **Remote Repository**: This repository has configured with different public repostory to cache the artifact that are used by application such as libs, base docker images etc. usually central maven, docker io , gcr repository can be configured in remote repository. This repository is also configured in Virtual reposiotry.
+3. **Virtual Repository**: This repository has configured with local repository and remote repoistory. It is the repository which should be cnofigured everywhere as unified repository leveraging cached remote artifacts and locally build artifacts. This enables faster and reliable builds and inc ase of public repository rate limit or un availbility
 
 
-## Starting services locally with docker-compose and Java
-If you experience issues with running the system via docker-compose you can try running the `./scripts/run_all.sh` script that will start the infrastructure services via docker-compose and all the Java based applications via standard `nohup java -jar ...` command. The logs will be available under `${ROOT}/target/nameoftheapp.log`. 
+### CI:
 
-Each of the java based applications is started with the `chaos-monkey` profile in order to interact with Spring Boot Chaos Monkey. You can check out the (README)[scripts/chaos/README.md] for more information about how to use the `./scripts/chaos/call_chaos.sh` helper script to enable assaults.
+CI Job is Github Action based CI pipeline which is used to build the source code and create docker images 
+file: .github/workflows/ci-build.yaml
 
-## Understanding the Spring Petclinic application
+### CD:
+CD Pieplines are built for AzureDevOps 
+File: /azure_devops_pipeline/staging-pipeline.yml, /azure_devops_pipeline/production-pipeline.yml
 
-[See the presentation of the Spring Petclinic Framework version](http://fr.slideshare.net/AntoineRey/spring-framework-petclinic-sample-application)
+### Deployment Yaml files:
+Deployment yaml files are used to deploy the micro services on to kubernetes.
+file: /kubernetes
 
-[A blog post introducing the Spring Petclinic Microsevices](http://javaetmoi.com/2018/10/architecture-microservices-avec-spring-cloud/) (french language)
+### Infrastructure
+Refer Readme file in **CICDInfra** directory.
 
-You can then access petclinic here: http://localhost:8080/
+### Security Considerations
+This demo provides basic security features mainly SAST (Static Application Security Testing) using SonarQube and Anchore
+SonarQube provides source code scanning where as ANchore provides docker image vulnerability scanning. DAST testing is excluded however CIS bench marking test for infra , Pen Test for application is important aspect to consider.
+TLS certificate terminating atleast at ingress is required.(its also better to use it for service to service communication specially when they are deployed in different AZ/region)
+Also Having WAF(Web Application firewall), DDoS protection Shild , various IAM solutions required to secure the application.
+
+### Scaling and High Availability 
+In order to scale the application we can leverage both vertical as well as horizontal scaling(inlcuding scaling of udnerlying clusters). 
+For application scaling HPA can provide better solution based on various metrics such as CPU utilization or other custom metrics. also implemnentaion of load balncer streamlines traffic and enable efficiancy.
+For infra structure scaling auto scaling in GKE cluster can be utilized. Adding multiple node pool in various zones can enable proper horizontal scaling.
+For availblity regional level fail over is prefererd and at least multi AZ deployment should be done.
+
+### Monitoring and logging
+This application leverages promethius and grfana based monitoring. 
+
+### Database 
+Though current application uses in memory database it is possible to add mysql databse. For finiance related and mission critical apps it is better to use DB as service from various cloud providers with Active + Active (sync/async) or Active + passive Synchromnization. It is not recmonnded to put Statefull application such as mysql on kubernertes.
+
+
+
+Note About Original Application:
+Original open source application used for the demo from: https://github.com/spring-petclinic/spring-petclinic-microservices
+Updated the forked repo for fixes to application so that it can be deployed and run
 
 ## Microservices Overview
 
@@ -94,152 +146,7 @@ Each service has its own specific role and communicates via REST APIs.
 ![Spring Petclinic Microservices architecture](docs/microservices-architecture-diagram.jpg)
 
 
-## In case you find a bug/suggested improvement for Spring Petclinic Microservices
 
-Our issue tracker is available here: https://github.com/spring-petclinic/spring-petclinic-microservices/issues
-
-## Database configuration
-
-In its default configuration, Petclinic uses an in-memory database (HSQLDB) which gets populated at startup with data.
-A similar setup is provided for MySql in case a persistent database configuration is needed.
-Dependency for Connector/J, the MySQL JDBC driver is already included in the `pom.xml` files.
-
-### Start a MySql database
-
-You may start a MySql database with docker:
-
-```
-docker run -e MYSQL_ROOT_PASSWORD=petclinic -e MYSQL_DATABASE=petclinic -p 3306:3306 mysql:5.7.8
-```
-or download and install the MySQL database (e.g., MySQL Community Server 5.7 GA), which can be found here: https://dev.mysql.com/downloads/
-
-### Use the Spring 'mysql' profile
-
-To use a MySQL database, you have to start 3 microservices (`visits-service`, `customers-service` and `vets-services`)
-with the `mysql` Spring profile. Add the `--spring.profiles.active=mysql` as programm argument.
-
-By default, at startup, database schema will be created and data will be populated.
-You may also manually create the PetClinic database and data by executing the `"db/mysql/{schema,data}.sql"` scripts of each 3 microservices. 
-In the `application.yml` of the [Configuration repository], set the `initialization-mode` to `never`.
-
-If you are running the microservices with Docker, you have to add the `mysql` profile into the (Dockerfile)[docker/Dockerfile]:
-```
-ENV SPRING_PROFILES_ACTIVE docker,mysql
-```
-In the `mysql section` of the `application.yml` from the [Configuration repository], you have to change 
-the host and port of your MySQL JDBC connection string. 
-
-## Custom metrics monitoring
-
-Grafana and Prometheus are included in the `docker-compose.yml` configuration, and the public facing applications
-have been instrumented with [MicroMeter](https://micrometer.io) to collect JVM and custom business metrics.
-
-A JMeter load testing script is available to stress the application and generate metrics: [petclinic_test_plan.jmx](spring-petclinic-api-gateway/src/test/jmeter/petclinic_test_plan.jmx)
-
-![Grafana metrics dashboard](docs/grafana-custom-metrics-dashboard.png)
-
-### Using Prometheus
-
-* Prometheus can be accessed from your local machine at http://localhost:9091
-
-### Using Grafana with Prometheus
-
-* An anonymous access and a Prometheus datasource are setup.
-* A `Spring Petclinic Metrics` Dashboard is available at the URL http://localhost:3000/d/69JXeR0iw/spring-petclinic-metrics.
-You will find the JSON configuration file here: [docker/grafana/dashboards/grafana-petclinic-dashboard.json]().
-* You may create your own dashboard or import the [Micrometer/SpringBoot dashboard](https://grafana.com/dashboards/4701) via the Import Dashboard menu item.
-The id for this dashboard is `4701`.
-
-### Custom metrics
-Spring Boot registers a lot number of core metrics: JVM, CPU, Tomcat, Logback... 
-The Spring Boot auto-configuration enables the instrumentation of requests handled by Spring MVC.
-All those three REST controllers `OwnerResource`, `PetResource` and `VisitResource` have been instrumented by the `@Timed` Micrometer annotation at class level.
-
-* `customers-service` application has the following custom metrics enabled:
-  * @Timed: `petclinic.owner`
-  * @Timed: `petclinic.pet`
-* `visits-service` application has the following custom metrics enabled:
-  * @Timed: `petclinic.visit`
-
-## Looking for something in particular?
-
-| Spring Cloud components         | Resources  |
-|---------------------------------|------------|
-| Configuration server            | [Config server properties](spring-petclinic-config-server/src/main/resources/application.yml) and [Configuration repository] |
-| Service Discovery               | [Eureka server](spring-petclinic-discovery-server) and [Service discovery client](spring-petclinic-vets-service/src/main/java/org/springframework/samples/petclinic/vets/VetsServiceApplication.java) |
-| API Gateway                     | [Spring Cloud Gateway starter](spring-petclinic-api-gateway/pom.xml) and [Routing configuration](/spring-petclinic-api-gateway/src/main/resources/application.yml) |
-| Docker Compose                  | [Spring Boot with Docker guide](https://spring.io/guides/gs/spring-boot-docker/) and [docker-compose file](docker-compose.yml) |
-| Circuit Breaker                 | [Resilience4j fallback method](spring-petclinic-api-gateway/src/main/java/org/springframework/samples/petclinic/api/boundary/web/ApiGatewayController.java)  |
-| Grafana / Prometheus Monitoring | [Micrometer implementation](https://micrometer.io/), [Spring Boot Actuator Production Ready Metrics] |
-
-|  Front-end module | Files |
-|-------------------|-------|
-| Node and NPM      | [The frontend-maven-plugin plugin downloads/installs Node and NPM locally then runs Bower and Gulp](spring-petclinic-ui/pom.xml)  |
-| Bower             | [JavaScript libraries are defined by the manifest file bower.json](spring-petclinic-ui/bower.json)  |
-| Gulp              | [Tasks automated by Gulp: minify CSS and JS, generate CSS from LESS, copy other static resources](spring-petclinic-ui/gulpfile.js)  |
-| Angular JS        | [app.js, controllers and templates](spring-petclinic-ui/src/scripts/)  |
-
-## Pushing to a Docker registry
-
-Docker images for `linux/amd64` and `linux/arm64` platforms have been published into DockerHub 
-in the [springcommunity](https://hub.docker.com/u/springcommunity) organization.
-You can pull an image:
-```bash
-docker pull springcommunity/spring-petclinic-config-server
-```
-You may prefer to build then push images to your own Docker registry.
-
-### Choose your Docker registry
-
-You need to define your target Docker registry.
-Make sure you're already logged in by running `docker login <endpoint>` or `docker login` if you're just targeting Docker hub.
-
-Setup the `REPOSITORY_PREFIX` env variable to target your Docker registry.
-If you're targeting Docker hub, simple provide your username, for example:
-```bash
-export REPOSITORY_PREFIX=springcommunity
-```
-
-For other Docker registries, provide the full URL to your repository, for example:
-```bash
-export REPOSITORY_PREFIX=harbor.myregistry.com/petclinic
-```
-
-To push Docker image for the `linux/amd64` and the `linux/arm64` platform to your own registry, please use the command line:
-```bash
-mvn clean install -Dmaven.test.skip -P buildDocker -Ddocker.image.prefix=${REPOSITORY_PREFIX} -Dcontainer.build.extraarg="--push" -Dcontainer.platform="linux/amd64,linux/arm64"
-```
-
-The `scripts/pushImages.sh` and `scripts/tagImages.sh` shell scripts could also be used once you build your image with the `buildDocker` maven profile.
-The `scripts/tagImages.sh` requires to declare the `VERSION` env variable.
-
-## Compiling the CSS
-
-There is a `petclinic.css` in `spring-petclinic-api-gateway/src/main/resources/static/css`.
-It was generated from the `petclinic.scss` source, combined with the [Bootstrap](https://getbootstrap.com/) library.
-If you make changes to the `scss`, or upgrade Bootstrap, you will need to re-compile the CSS resources
-using the Maven profile `css` of the `spring-petclinic-api-gateway`module.
-```bash
-cd spring-petclinic-api-gateway
-mvn generate-resources -P css
-```
-
-## Interesting Spring Petclinic forks
-
-The Spring Petclinic `main` branch in the main [spring-projects](https://github.com/spring-projects/spring-petclinic)
-GitHub org is the "canonical" implementation, currently based on Spring Boot and Thymeleaf.
-
-This [spring-petclinic-microservices](https://github.com/spring-petclinic/spring-petclinic-microservices/) project is one of the [several forks](https://spring-petclinic.github.io/docs/forks.html) 
-hosted in a special GitHub org: [spring-petclinic](https://github.com/spring-petclinic).
-If you have a special interest in a different technology stack
-that could be used to implement the Pet Clinic then please join the community there.
-
-
-## Contributing
-
-The [issue tracker](https://github.com/spring-petclinic/spring-petclinic-microservices/issues) is the preferred channel for bug reports, features requests and submitting pull requests.
-
-For pull requests, editor preferences are available in the [editor config](.editorconfig) for easy use in common text editors. Read more and download plugins at <http://editorconfig.org>.
 
 
 [Configuration repository]: https://github.com/spring-petclinic/spring-petclinic-microservices-config

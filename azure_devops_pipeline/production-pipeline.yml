@@ -1,0 +1,68 @@
+# production-pipeline.yml
+trigger:
+  - main
+
+variables:
+  - group: global
+  - name: NAMESPACE
+    value: production
+  - name: CPU_LIMIT
+    value: 1000m
+  - name: MEMORY_LIMIT
+    value: 1024Mi
+  - name: CPU_REQUEST
+    value: 500m
+  - name: MEMORY_REQUEST
+    value: 512Mi
+  - name: REPLICAS
+    value: "3"
+  - name: API_GATEWAY_HOST
+    value: petapp.tagarsoft.com
+  - name: ARTIFACT_REGISTRY_HOST
+    value: asia-northeast1-docker.pkg.dev
+stages:
+
+- stage: DeployProduction
+  jobs:
+  - job: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        namespace: '$(NAMESPACE)'
+        command: 'create'
+        arguments: 'secret docker-registry gcr-json-key --docker-server=${ARTIFACT_REGISTRY_HOST} --docker-username=_json_key --docker-password="$(GCP_KEY)" --docker-email=NOT_NEEDED'
+    
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifactName: 'manifests'
+        downloadPath: '$(Pipeline.Workspace)/manifests'
+    
+    - script: |
+        sed -i 's/${NAMESPACE}/$(NAMESPACE)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${CPU_LIMIT}/$(CPU_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${MEMORY_LIMIT}/$(MEMORY_LIMIT)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${CPU_REQUEST}/$(CPU_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${MEMORY_REQUEST}/$(MEMORY_REQUEST)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${REPLICAS}/$(REPLICAS)/g' $(Pipeline.Workspace)/manifests/*.yml
+        sed -i 's/${API_GATEWAY_HOST}/$(API_GATEWAY_HOST)/g' $(Pipeline.Workspace)/manifests/*.yml
+      displayName: 'Replace placeholders in Kubernetes manifests'
+
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        namespace: '$(NAMESPACE)'
+        manifests: |
+          $(Pipeline.Workspace)/manifests/*
+        imagePullSecrets: |
+          $(imagePullSecret)
+        containers: |
+          $(containerRegistry)/spring-petclinic-api-gateway:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-customers-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-vets-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-visits-service:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-config-server:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-discovery-server:$(Build.BuildId)
+          $(containerRegistry)/spring-petclinic-admin-server:$(Build.BuildId)

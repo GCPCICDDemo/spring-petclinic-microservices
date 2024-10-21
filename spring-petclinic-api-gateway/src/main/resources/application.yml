@@ -24,6 +24,13 @@ spring:
             - Path=/api/customer/**
           filters:
             - StripPrefix=2
+  properties:
+    visits-service:
+      hostname: http://visits-service
+    visits:
+      service:
+        url: http://visits-service
+
 
 
 
@@ -33,3 +40,5 @@ spring:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
+
+

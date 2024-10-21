@@ -1,0 +1,9 @@
+controller:
+  config:
+    use-forwarded-headers: "true"
+    proxy-body-size: "50m"
+    client-max-body-size: "50m"
+  extraArgs:
+    enable-ssl-passthrough: ""
+
+

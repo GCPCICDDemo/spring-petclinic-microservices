@@ -49,4 +49,29 @@ public class OwnerDetails {
             .map(PetDetails::getId)
             .collect(toList());
     }
+
+    public List<PetDetails> getPets() {
+        return pets; // Assuming you have a 'pets' field
+    }
+    public void addPet(PetDetails pet) {
+        this.pets.add(pet);
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    public void setCity(String city) {
+        this.city = city;
+    }
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }   
 }

@@ -1,0 +1,42 @@
+# config-server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server
+  namespace: ${NAMESPACE}
+spec:
+  replicas: 1  # Usually one replica is sufficient for Config Server
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      containers:
+      - name: config-server
+        image: asia-northeast1-docker.pkg.dev/demoforgaudiy/docker-local/spring-petclinic-config-server:${CONFIG_SERVER_VERSION}
+        ports:
+        - containerPort: 8888
+        resources:
+          limits:
+            cpu: ${CPU_LIMIT}
+            memory: ${MEMORY_LIMIT}
+          requests:
+            cpu: ${CPU_REQUEST}
+            memory: ${MEMORY_REQUEST}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server
+  namespace: ${NAMESPACE}
+spec:
+  selector:
+    app: config-server
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+

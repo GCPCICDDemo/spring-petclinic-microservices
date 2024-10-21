@@ -34,6 +34,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * @author Juergen Hoeller
  * @author Ken Krebs
@@ -48,13 +53,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Timed("petclinic.visit")
 class VisitResource {
 
-    private final VisitRepository visitRepository;
+    private static final Logger log = LoggerFactory.getLogger(VisitResource.class);
+
+    @Autowired
+    private VisitRepository visitRepository;
 
     @PostMapping("owners/*/pets/{petId}/visits")
     @ResponseStatus(HttpStatus.CREATED)
-    public Visit create(
+    Visit create(
         @Valid @RequestBody Visit visit,
-        @PathVariable("petId") @Min(1) int petId) {
+        @PathVariable("petId") int petId) {
 
         visit.setPetId(petId);
         log.info("Saving visit {}", visit);
@@ -62,18 +70,31 @@ class VisitResource {
     }
 
     @GetMapping("owners/*/pets/{petId}/visits")
-    public List<Visit> read(@PathVariable("petId") @Min(1) int petId) {
+    List<Visit> visits(@PathVariable("petId") int petId) {
         return visitRepository.findByPetId(petId);
     }
 
     @GetMapping("pets/visits")
-    public Visits read(@RequestParam("petId") List<Integer> petIds) {
+    public Visits visitsMultiGet(@RequestParam("petId") List<Integer> petIds) {
         final List<Visit> byPetIdIn = visitRepository.findByPetIdIn(petIds);
-        return new Visits(byPetIdIn);
+        
+        Visits visits = new Visits();
+        visits.setItems(byPetIdIn);
+        return visits;
     }
 
-    @Value
-    static class Visits {
-        List<Visit> items;
+    public static class Visits {
+        private List<Visit> items = new ArrayList<>();
+
+        public Visits() {
+        }
+
+        public void setItems(List<Visit> items) {
+            this.items = items;
+        }
+
+        public List<Visit> getItems() {
+            return items;
+        }
     }
 }

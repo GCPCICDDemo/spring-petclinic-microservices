@@ -41,13 +41,13 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "visits")
-@Builder(builderMethodName = "visit")
-@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Visit {
 
     @Id
+    
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -64,4 +64,21 @@ public class Visit {
     @Column(name = "pet_id")
     private int petId;
 
+    public void setPetId(Integer petId) {
+        this.petId = petId;
+    }
+
+    public Integer getPetId() {
+        return this.petId;
+    }
+
+    public static Visit visit() {
+        return visit();
+    }
+    public Integer getId() {
+        return id;
+    }
+    public String getDescription() {
+        return description;
+    }
 }

@@ -29,4 +29,9 @@ public class Visits {
 
     private List<VisitDetails> items = new ArrayList<>();
 
+    public List<VisitDetails> getItems() {
+        // Implementation
+        return items;
+    }
+
 }

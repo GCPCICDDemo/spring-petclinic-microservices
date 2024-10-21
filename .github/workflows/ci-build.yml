@@ -50,16 +50,15 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-        -Dsonar.projectKey=GCPCICDDemo_spring-petclinic-microservices\
+        -Dsonar.projectKey=GCPCICDDemo_spring-petclinic-microservices \
         -Dsonar.organization=gcpcicddemo \
         -Dsonar.host.url=https://sonarcloud.io 
       continue-on-error: true
-      
-      ## Build Docker Images to see if the build is successful
-     - name: Build Docker Images
-      run: |-
+
+    - name: Build Docker Images
+      run: |
         ./mvnw clean install -P buildDocker
-    # Add this step to explicitly set the job status
+
     - name: Check build status
       if: failure()
       run: exit 1

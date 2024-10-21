@@ -58,27 +58,24 @@ jobs:
       run: |
         ./mvnw clean install -P buildDocker
 
-    
-    
-    - name: Install Trivy
-      run: |
-        sudo apt-get install wget apt-transport-https gnupg lsb-release
-        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-        sudo apt-get update
-        sudo apt-get install trivy
+    - name: Run Grype vulnerability scanner
+      uses: anchore/scan-action@v3
+      with:
+        image: "springcommunity/spring-petclinic-api-gateway"
+        fail-build: true
+        severity-cutoff: high
 
-    - name: Run Trivy vulnerability scanner for all images
+    - name: Run Grype on multiple images
       run: |
-        for image in springcommunity/spring-petclinic-api-gateway \
-                     springcommunity/spring-petclinic-config-server \
+        for image in springcommunity/spring-petclinic-config-server \
                      springcommunity/spring-petclinic-discovery-server \
                      springcommunity/spring-petclinic-customers-service \
                      springcommunity/spring-petclinic-visits-service \
                      springcommunity/spring-petclinic-vets-service \
                      springcommunity/spring-petclinic-admin-server; do
-          trivy image --exit-code 0 --ignore-unfixed --vuln-type os,library --severity CRITICAL,HIGH $image
+          grype $image --fail-on high || exit 1
         done
+
     - name: Check build status
       if: failure()
       run: exit 1
@@ -136,26 +133,23 @@ jobs:
       run: |-
         ./mvnw clean install -P buildDocker
 
-    - name: Install Trivy
-      run: |
-        sudo apt-get install wget apt-transport-https gnupg lsb-release
-        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-        sudo apt-get update
-        sudo apt-get install trivy
+    - name: Run Grype vulnerability scanner
+      uses: anchore/scan-action@v3
+      with:
+        image: "springcommunity/spring-petclinic-api-gateway"
+        fail-build: true
+        severity-cutoff: high
 
-    - name: Run Trivy vulnerability scanner for all images
+    - name: Run Grype on multiple images
       run: |
-        for image in springcommunity/spring-petclinic-api-gateway \
-                     springcommunity/spring-petclinic-config-server \
+        for image in springcommunity/spring-petclinic-config-server \
                      springcommunity/spring-petclinic-discovery-server \
                      springcommunity/spring-petclinic-customers-service \
                      springcommunity/spring-petclinic-visits-service \
                      springcommunity/spring-petclinic-vets-service \
                      springcommunity/spring-petclinic-admin-server; do
-          trivy image --exit-code 0 --ignore-unfixed --vuln-type os,library --severity CRITICAL,HIGH $image
+          grype $image --fail-on high || exit 1
         done
-
     - name: Extract version from branch name
       run: |
         if [[ $GITHUB_EVENT_NAME == 'pull_request' ]]; then
